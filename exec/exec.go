@@ -1,6 +1,7 @@
 package exec
 
 import (
+	"fmt"
 	bind_data "github.com/Xib1uvXi/lotus-shell-tool/bind-data"
 	"github.com/Xib1uvXi/lotus-shell-tool/env"
 	"go.uber.org/zap"
@@ -31,12 +32,12 @@ func NewExecutor(conf *env.Config) *Executor {
 	return &Executor{conf: conf}
 }
 
-func (e Executor) StartLotus() error {
+func (e *Executor) StartLotus() error {
 	checkCmdExist("lotus")
 	name := "lotus-blockchain"
 	shB, err := bind_data.Asset("scripts/start_lotus.sh")
 	if err != nil {
-		log.Error("exec start lotus shell failed", "msg: ", err)
+		log.Error("get start lotus shell failed", "msg: ", err)
 		return err
 	}
 
@@ -47,14 +48,28 @@ func (e Executor) StartLotus() error {
 	return nil
 }
 
-//func (e Executor) StartMiner() error {
-//
-//}
-//
-//func (e Executor) StopMiner() error {
-//
-//}
-//
+func (e *Executor) StartMiner() error {
+	checkCmdExist("lotus-miner")
+	name := e.conf.Name
+
+	shB, err := bind_data.Asset("scripts/start_miner.sh")
+	if err != nil {
+		log.Error("get start lotus shell failed", "msg: ", err)
+		return err
+	}
+
+	if err := execCmdByTmpFile(shB, e.conf.Env(), name, e.conf.GetLogPath(name)); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (e *Executor) StopMiner(force bool) error {
+	name := e.conf.Name
+	return KillLocalProcess(name, force)
+}
+
 //func (e Executor) StartWorker() error {
 //
 //}
@@ -85,6 +100,20 @@ func execCmdByTmpFile(cmd []byte, env []string, args ...string) (err error) {
 		}
 	}
 	return
+}
+
+// 杀死某个本地程序
+func KillLocalProcess(appName string, force bool) (err error) {
+	_, err = exec.Command("/bin/bash", "-c", killCmd(appName, force)).Output()
+	return
+}
+
+func killCmd(appName string, force bool) string {
+	// kill -9无法被signal chan收到
+	if force {
+		return fmt.Sprintf("ps aux|grep \"%v\"|awk '{print $2}'|xargs kill -9", appName)
+	}
+	return fmt.Sprintf("ps aux|grep \"%v\"|awk '{print $2}'|xargs kill -2", appName)
 }
 
 func checkCmdExist(cmd string) {

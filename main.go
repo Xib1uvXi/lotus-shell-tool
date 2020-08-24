@@ -11,6 +11,7 @@ import (
 func main() {
 	local := []*cli.Command{
 		toolCli.LotusCmd,
+		toolCli.MinerCmd,
 	}
 
 	app := &cli.App{
