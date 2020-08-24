@@ -2,19 +2,19 @@ package cli
 
 import "github.com/urfave/cli/v2"
 
-var MinerCmd = &cli.Command{
-	Name:  "miner",
-	Usage: "lotus-miner",
+var WorkerCmd = &cli.Command{
+	Name:  "worker",
+	Usage: "lotus-worker",
 	Subcommands: []*cli.Command{
 		{
 			Name:   "start",
-			Usage:  "start lotus miner",
-			Action: startMiner,
+			Usage:  "start lotus worker",
+			Action: startWorker,
 		},
 		{
 			Name:   "stop",
-			Usage:  "stop lotus miner",
-			Action: stopMiner,
+			Usage:  "stop lotus worker",
+			Action: stopWorker,
 			Flags: []cli.Flag{
 				&cli.BoolFlag{
 					Name:  "force",
@@ -26,12 +26,12 @@ var MinerCmd = &cli.Command{
 	},
 }
 
-func startMiner(c *cli.Context) error {
+func startWorker(c *cli.Context) error {
 	exec := builder(c)
-	return exec.StartMiner()
+	return exec.StartWorker()
 }
 
-func stopMiner(c *cli.Context) error {
+func stopWorker(c *cli.Context) error {
 	exec := builder(c)
 	return exec.Stop(c.Bool("force"))
 }

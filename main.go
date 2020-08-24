@@ -12,6 +12,7 @@ func main() {
 	local := []*cli.Command{
 		toolCli.LotusCmd,
 		toolCli.MinerCmd,
+		toolCli.WorkerCmd,
 	}
 
 	app := &cli.App{
