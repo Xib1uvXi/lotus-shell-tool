@@ -16,6 +16,7 @@ type Config struct {
 	Size   string `toml:"SIZE"`
 	Proofs *Proofs
 	Path   *Path
+	Worker *Worker
 }
 
 func (c *Config) GetLogPath(id string) string {
@@ -35,6 +36,7 @@ func (c *Config) Env() []string {
 		fmt.Sprintf("LOG_PATH=%s", c.Path.LogPath),
 		fmt.Sprintf("WORKER_REPO=%s", c.Path.WorkerRepo),
 		fmt.Sprintf("RUST_LOG=%s", c.Path.RustLog),
+		fmt.Sprintf("MINER_API_INFO=%s", c.Path.MinerApiInfo),
 	}
 }
 
@@ -54,6 +56,15 @@ type Path struct {
 	LogPath                 string `toml:"LOG_PATH"`
 	WorkerRepo              string `toml:"WORKER_REPO"`
 	RustLog                 string `toml:"RUST_LOG"`
+	MinerApiInfo            string `toml:"MINER_API_INFO"`
+}
+
+type Worker struct {
+	Listen string `toml:"LISTEN"`
+	AP     bool   `toml:"AP"`
+	P1     bool   `toml:"P1"`
+	P2     bool   `toml:"P2"`
+	C      bool   `toml:"C"`
 }
 
 func (c *Config) validate() *Config {

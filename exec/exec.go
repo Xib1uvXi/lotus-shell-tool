@@ -2,7 +2,6 @@ package exec
 
 import (
 	"fmt"
-	bind_data "github.com/Xib1uvXi/lotus-shell-tool/bind-data"
 	"github.com/Xib1uvXi/lotus-shell-tool/env"
 	"go.uber.org/zap"
 	"gopkg.in/mgo.v2/bson"
@@ -36,7 +35,11 @@ func (e *Executor) StartLotus() error {
 	checkCmdExist("lotus")
 	name := "lotus-blockchain"
 
-	execCmd := fmt.Sprintf("export PATH=$PATH:~/tools/filecoin/calibration; exec -a %v lotus daemon --api 9999 >>%v 2>&1 &", name, e.conf.GetLogPath(name))
+	if e.conf.Path.LotusPath == "" {
+		panic("config toml need set LOTUS_PATH")
+	}
+
+	execCmd := fmt.Sprintf("export PATH=$PATH:~/tools/filecoin/calibration; exec -a %v lotus daemon >>%v 2>&1 &", name, e.conf.GetLogPath(name))
 
 	if err := execCmdByTmpFile([]byte(execCmd), e.conf.Env()); err != nil {
 		return err
@@ -49,31 +52,54 @@ func (e *Executor) StartMiner() error {
 	checkCmdExist("lotus-miner")
 	name := e.conf.Name
 
-	shB, err := bind_data.Asset("scripts/start_miner.sh")
-	if err != nil {
-		log.Error("get start lotus shell failed", "msg: ", err)
-		return err
+	if e.conf.Path.LotusStoragePath == "" {
+		panic("config toml need set LOTUS_STORAGE_PATH")
 	}
 
-	if err := execCmdByTmpFile(shB, e.conf.Env(), name, e.conf.GetLogPath(name)); err != nil {
+	if e.conf.Path.MinerApiInfo == "" {
+		panic("config toml need set MINER_API_INFO")
+	}
+
+	execCmd := fmt.Sprintf("export PATH=$PATH:~/tools/filecoin/calibration; exec -a %v nohup lotus-miner run >>%v 2>&1 &", name, e.conf.GetLogPath(name))
+
+	if err := execCmdByTmpFile([]byte(execCmd), e.conf.Env()); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-func (e *Executor) StopMiner(force bool) error {
+func (e *Executor) Stop(force bool) error {
 	name := e.conf.Name
 	return KillLocalProcess(name, force)
 }
 
-//func (e Executor) StartWorker() error {
-//
-//}
-//
-//func (e Executor) StopWorker() error {
-//
-//}
+func (e Executor) StartWorker() error {
+	checkCmdExist("lotus-miner")
+	name := e.conf.Name
+
+	if e.conf.Path.WorkerRepo == "" {
+		panic("config toml need set WORKER_REPO")
+	}
+
+	if e.conf.Path.MinerApiInfo == "" {
+		panic("config toml need set MINER_API_INFO")
+	}
+
+	if e.conf.Path.MinerApiInfo == "" {
+		panic("config toml need set MINER_API_INFO")
+	}
+
+	execCmd := fmt.Sprintf(
+		"mkdir -p %v;export PATH=$PATH:~/tools/filecoin/calibration; exec -a %v nohup lotus-worker --worker-repo=%v run --listen=%v --addpiece=%v --precommit1=%v --precommit2=%v --commit=%v >>%v 2>&1 &",
+		e.conf.Path.WorkerRepo, name, e.conf.Path.WorkerRepo, e.conf.Worker.Listen, e.conf.Worker.AP, e.conf.Worker.P1, e.conf.Worker.P2, e.conf.Worker.C, e.conf.GetLogPath(name))
+
+	if err := execCmdByTmpFile([]byte(execCmd), e.conf.Env()); err != nil {
+		return err
+	}
+
+	return nil
+}
 
 func execCmdByTmpFile(cmd []byte, env []string, args ...string) (err error) {
 	tmpFilePath := filepath.Join("/tmp", bson.NewObjectId().Hex()+".sh")
