@@ -36,7 +36,7 @@ func (e *Executor) StartLotus() error {
 	checkCmdExist("lotus")
 	name := "lotus-blockchain"
 
-	execCmd := fmt.Sprintf("export PATH=$PATH:~/tools/filecoin/calibration; export NAME=%v; lotus daemon --api 9999 >>%v 2>&1 &", name, e.conf.GetLogPath(name))
+	execCmd := fmt.Sprintf("export PATH=$PATH:~/tools/filecoin/calibration; export XG_NAME=%v lotus daemon --api 9999 >>%v 2>&1 &", name, e.conf.GetLogPath(name))
 
 	if err := execCmdByTmpFile([]byte(execCmd), e.conf.Env()); err != nil {
 		return err
