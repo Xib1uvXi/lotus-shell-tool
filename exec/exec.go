@@ -35,13 +35,10 @@ func NewExecutor(conf *env.Config) *Executor {
 func (e *Executor) StartLotus() error {
 	checkCmdExist("lotus")
 	name := "lotus-blockchain"
-	shB, err := bind_data.Asset("scripts/start_lotus.sh")
-	if err != nil {
-		log.Error("get start lotus shell failed", "msg: ", err)
-		return err
-	}
 
-	if err := execCmdByTmpFile(shB, e.conf.Env(), name, e.conf.GetLogPath(name)); err != nil {
+	execCmd := fmt.Sprintf("export PATH=$PATH:~/tools/filecoin/calibration; export NAME=%v; lotus daemon --api 9999 >>%v 2>&1 &", name, e.conf.GetLogPath(name))
+
+	if err := execCmdByTmpFile([]byte(execCmd), e.conf.Env()); err != nil {
 		return err
 	}
 
