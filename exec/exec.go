@@ -60,7 +60,7 @@ func (e *Executor) StartMiner() error {
 		panic("config toml need set MINER_API_INFO")
 	}
 
-	execCmd := fmt.Sprintf("export PATH=$PATH:~/tools/filecoin/calibration; exec -a %v nohup lotus-miner run >>%v 2>&1 &", name, e.conf.GetLogPath(name))
+	execCmd := fmt.Sprintf("export PATH=$PATH:~/tools/filecoin/calibration;nohup lotus-miner run >>%v 2>&1 &", e.conf.GetLogPath(name))
 
 	if err := execCmdByTmpFile([]byte(execCmd), e.conf.Env()); err != nil {
 		return err
@@ -91,8 +91,8 @@ func (e Executor) StartWorker() error {
 	}
 
 	execCmd := fmt.Sprintf(
-		"mkdir -p %v;export PATH=$PATH:~/tools/filecoin/calibration; exec -a %v nohup lotus-worker --worker-repo=%v run --listen=%v --addpiece=%v --precommit1=%v --precommit2=%v --commit=%v >>%v 2>&1 &",
-		e.conf.Path.WorkerRepo, name, e.conf.Path.WorkerRepo, e.conf.Worker.Listen, e.conf.Worker.AP, e.conf.Worker.P1, e.conf.Worker.P2, e.conf.Worker.C, e.conf.GetLogPath(name))
+		"mkdir -p %v;export PATH=$PATH:~/tools/filecoin/calibration; nohup lotus-worker --worker-repo=%v run --listen=%v --addpiece=%v --precommit1=%v --precommit2=%v --commit=%v >>%v 2>&1 &",
+		e.conf.Path.WorkerRepo, e.conf.Path.WorkerRepo, e.conf.Worker.Listen, e.conf.Worker.AP, e.conf.Worker.P1, e.conf.Worker.P2, e.conf.Worker.C, e.conf.GetLogPath(name))
 
 	if err := execCmdByTmpFile([]byte(execCmd), e.conf.Env()); err != nil {
 		return err
