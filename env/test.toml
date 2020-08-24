@@ -1,0 +1,15 @@
+SIZE = "32GiB"
+
+[proofs]
+FIL_PROOFS_USE_GPU_COLUMN_BUILDER = "1"
+FIL_PROOFS_USE_GPU_TREE_BUILDER = "1"
+FIL_PROOFS_PARAMETER_CACHE = "1"
+
+[path]
+FIL_PROOFS_PARAMETER_CACHE = "/tmp/proofs"
+TMPDIR = "/tmp"
+LOTUS_PATH = "/tmp/lotus"
+LOTUS_STORAGE_PATH = "/tmp/lotus-miner"
+WORKER_REPO = "/tmp/woker"
+RUST_LOG = "debug"
+LOG_PATH = "/tmp/log"
