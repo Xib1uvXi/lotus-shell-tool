@@ -95,7 +95,7 @@ func execCmdByTmpFile(cmd []byte, env []string, args ...string) (err error) {
 
 	if rb, err := runCmd.Output(); err != nil {
 		if len(rb) != 0 {
-			log.Debug("exec cmd failed", "result", string(rb))
+			log.Info("exec cmd failed", "result", string(rb))
 			return err
 		}
 	}
